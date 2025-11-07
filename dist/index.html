@@ -5,32 +5,9 @@
     <link rel="icon" type="image/svg+xml" href="./vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Accessible Learning Platform</title>
-    <script type="module" crossorigin src="./assets/index-B0PEzrkM.js"></script>
+    <script type="module" crossorigin src="./assets/index-DgHhpmDw.js"></script>
   </head>
   <body>
     <div id="root"></div>
-    <script>
-      // Debug: Check if JavaScript is loading
-      console.log('HTML loaded, checking root element...');
-      const root = document.getElementById('root');
-      console.log('Root element found:', !!root);
-
-      // Add visible debug text
-      if (root) {
-        root.innerHTML = '<div style="color: red; font-size: 24px; padding: 50px;">🔴 HTML LOADED - WAITING FOR JS</div>';
-      }
-
-      // Check if script loads
-      window.addEventListener('load', () => {
-        console.log('Window loaded');
-      });
-
-      window.addEventListener('error', (e) => {
-        console.error('Script error:', e);
-        if (root) {
-          root.innerHTML = '<div style="color: red; font-size: 24px; padding: 50px;">❌ SCRIPT ERROR: ' + e.message + '</div>';
-        }
-      });
-    </script>
   </body>
 </html>
