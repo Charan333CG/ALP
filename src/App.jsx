@@ -14,7 +14,14 @@ import AdminPanel from './pages/AdminPanel';
 function App() {
   const { user, loading } = useAuth();
 
-  if (loading) return <div>Loading...</div>;
+  console.log('App component rendering, user:', user, 'loading:', loading);
+
+  if (loading) {
+    console.log('Showing loading screen');
+    return <div style={{ padding: '40px', color: 'white', background: 'black' }}>Loading Accessible Learning Platform...</div>;
+  }
+
+  console.log('Rendering main app content');
 
   return (
     <AccessibilityProvider>
