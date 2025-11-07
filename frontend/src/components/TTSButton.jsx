@@ -1,25 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useSpeechSynthesis } from 'react-speech-kit';
 import { useAccessibility } from '../context/AccessibilityContext';
 
 const TTSButton = ({ text, className = '', children }) => {
   const { preferences } = useAccessibility();
-  const { speak, cancel, speaking, supported } = useSpeechSynthesis();
   const [isPlaying, setIsPlaying] = useState(false);
+  const [supported, setSupported] = useState(false);
 
-  // Stop speaking when component unmounts or preferences change
+  // Check if speech synthesis is supported
   useEffect(() => {
-    return () => {
-      if (speaking) {
-        cancel();
-      }
-    };
-  }, [speaking, cancel]);
-
-  // Update speaking state
-  useEffect(() => {
-    setIsPlaying(speaking);
-  }, [speaking]);
+    setSupported('speechSynthesis' in window);
+  }, []);
 
   const handleSpeak = () => {
     if (!supported) {
@@ -32,19 +22,28 @@ const TTSButton = ({ text, className = '', children }) => {
       return;
     }
 
-    if (speaking) {
-      cancel();
+    if (isPlaying) {
+      window.speechSynthesis.cancel();
       setIsPlaying(false);
     } else {
-      speak({
-        text,
-        voice: preferences.ttsVoice !== 'default' ? preferences.ttsVoice : undefined,
-        rate: preferences.ttsRate,
-        pitch: preferences.ttsPitch,
-        onEnd: () => setIsPlaying(false),
-        onError: () => setIsPlaying(false)
-      });
-      setIsPlaying(true);
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = preferences.ttsRate || 0.9;
+      utterance.pitch = preferences.ttsPitch || 1;
+      utterance.volume = 1;
+
+      if (preferences.ttsVoice && preferences.ttsVoice !== 'default') {
+        const voices = window.speechSynthesis.getVoices();
+        const selectedVoice = voices.find(voice => voice.name === preferences.ttsVoice);
+        if (selectedVoice) {
+          utterance.voice = selectedVoice;
+        }
+      }
+
+      utterance.onstart = () => setIsPlaying(true);
+      utterance.onend = () => setIsPlaying(false);
+      utterance.onerror = () => setIsPlaying(false);
+
+      window.speechSynthesis.speak(utterance);
     }
   };
 
