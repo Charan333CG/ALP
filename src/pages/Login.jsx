@@ -18,10 +18,13 @@ const Login = () => {
     setLoading(true);
     setError('');
     try {
+      console.log('Submitting login form for:', formData.email);
       await login(formData.email, formData.password);
+      console.log('Login successful, navigating to dashboard');
       navigate('/');
     } catch (err) {
-      setError('Invalid email or password. Please try again.');
+      console.error('Login failed:', err);
+      setError(err.message || 'Invalid email or password. Please try again.');
     } finally {
       setLoading(false);
     }

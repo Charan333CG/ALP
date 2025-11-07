@@ -60,6 +60,15 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Test endpoint for API connectivity
+app.get('/api/auth/test', (req, res) => {
+  res.json({
+    message: 'Backend API is working!',
+    timestamp: new Date().toISOString(),
+    endpoints: ['/api/auth/register', '/api/auth/login', '/api/auth/me']
+  });
+});
+
 // Routes
 app.get('/', (req, res) => res.send('Accessible Learning Platform API is running'));
 app.use('/api/auth', require('./routes/auth'));

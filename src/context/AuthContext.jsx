@@ -31,19 +31,43 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (email, password) => {
-    const res = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/auth/login`, { email, password });
-    const { token, user } = res.data;
-    localStorage.setItem('token', token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    setUser(user);
+    try {
+      console.log('Attempting login for:', email);
+      const res = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/auth/login`, {
+        email,
+        password
+      });
+      console.log('Login response:', res.data);
+      const { token, user } = res.data;
+      localStorage.setItem('token', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      setUser(user);
+      return { success: true };
+    } catch (error) {
+      console.error('Login error:', error.response?.data || error.message);
+      throw new Error(error.response?.data?.message || 'Invalid credentials');
+    }
   };
 
   const register = async (name, email, password, role) => {
-    const res = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/auth/register`, { name, email, password, role });
-    const { token, user } = res.data;
-    localStorage.setItem('token', token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    setUser(user);
+    try {
+      console.log('Attempting registration with:', { name, email, role, apiUrl: import.meta.env.VITE_API_URL });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/auth/register`, {
+        name,
+        email,
+        password,
+        role
+      });
+      console.log('Registration response:', res.data);
+      const { token, user } = res.data;
+      localStorage.setItem('token', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      setUser(user);
+      return { success: true };
+    } catch (error) {
+      console.error('Registration error:', error.response?.data || error.message);
+      throw new Error(error.response?.data?.message || 'Registration failed. Please try again.');
+    }
   };
 
   const logout = () => {

@@ -18,10 +18,13 @@ const Register = () => {
     setLoading(true);
     setError('');
     try {
+      console.log('Submitting registration form:', formData);
       await register(formData.name, formData.email, formData.password, formData.role);
+      console.log('Registration successful, navigating to dashboard');
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      console.error('Registration failed:', err);
+      setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
