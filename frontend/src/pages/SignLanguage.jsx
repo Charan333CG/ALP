@@ -13,66 +13,72 @@ const SignLanguage = () => {
       title: "Basic Greetings in Sign Language",
       description: "Learn common greetings and introductions in American Sign Language (ASL)",
       videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-      thumbnail: "https://i.ytimg.com/vi/0zM3nApSvMg/maxresdefault.jpg",
+      thumbnail: "/thumbnails/sign-language-greetings.jpg",
       duration: "5:30",
       difficulty: "Beginner",
       instructor: "Sarah Johnson",
-      transcript: "Hello! Welcome to basic greetings in sign language. Today we'll learn: Hello, Goodbye, Thank you, Please, and You're welcome..."
+      transcript: "Hello! Welcome to basic greetings in sign language. Today we'll learn: Hello, Goodbye, Thank you, Please, and You're welcome...",
+      altText: "Person demonstrating sign language greeting with both hands forming hello gesture"
     },
     {
       id: 2,
       title: "Numbers 1-20 in ASL",
       description: "Master counting from 1 to 20 in American Sign Language",
       videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-      thumbnail: "https://i.ytimg.com/vi/hx3E2oewwxI/maxresdefault.jpg",
+      thumbnail: "/thumbnails/sign-language-numbers.jpg",
       duration: "8:15",
       difficulty: "Beginner",
       instructor: "Mike Chen",
-      transcript: "Let's learn numbers in sign language! One, two, three, four, five..."
+      transcript: "Let's learn numbers in sign language! One, two, three, four, five...",
+      altText: "Instructor showing number signs with clear hand movements for counting"
     },
     {
       id: 3,
       title: "Family Members Signs",
       description: "Learn signs for family relationships and members",
       videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-      thumbnail: "https://i.ytimg.com/vi/4JvKmTLRrXA/maxresdefault.jpg",
+      thumbnail: "/thumbnails/sign-language-family.jpg",
       duration: "6:45",
       difficulty: "Beginner",
       instructor: "Lisa Rodriguez",
-      transcript: "Family is important! Learn to sign: Mother, Father, Brother, Sister, Grandmother, Grandfather..."
+      transcript: "Family is important! Learn to sign: Mother, Father, Brother, Sister, Grandmother, Grandfather...",
+      altText: "Family sign language demonstration showing various family member signs"
     },
     {
       id: 4,
       title: "Colors in Sign Language",
       description: "Express colors through American Sign Language",
       videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-      thumbnail: "https://i.ytimg.com/vi/8N_tupPBtWQ/maxresdefault.jpg",
+      thumbnail: "/thumbnails/sign-language-colors.jpg",
       duration: "7:20",
       difficulty: "Beginner",
       instructor: "David Kim",
-      transcript: "Colors make the world beautiful! Red, blue, green, yellow, orange, purple, black, white..."
+      transcript: "Colors make the world beautiful! Red, blue, green, yellow, orange, purple, black, white...",
+      altText: "Color signs demonstration with vibrant color representations"
     },
     {
       id: 5,
       title: "Common Phrases for Daily Life",
       description: "Essential phrases for everyday communication",
       videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-      thumbnail: "https://i.ytimg.com/vi/6a7KfLxPGTI/maxresdefault.jpg",
+      thumbnail: "/thumbnails/sign-language-phrases.jpg",
       duration: "10:30",
       difficulty: "Intermediate",
       instructor: "Emma Thompson",
-      transcript: "Daily communication is key! Learn: How are you? I'm fine, What's your name? My name is..."
+      transcript: "Daily communication is key! Learn: How are you? I'm fine, What's your name? My name is...",
+      altText: "Daily conversation phrases in sign language with expressive facial gestures"
     },
     {
       id: 6,
       title: "Weather and Seasons Signs",
       description: "Express weather conditions and seasons in ASL",
       videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-      thumbnail: "https://i.ytimg.com/vi/9xwazD5SyVg/maxresdefault.jpg",
+      thumbnail: "/thumbnails/sign-language-weather.jpg",
       duration: "9:10",
       difficulty: "Intermediate",
       instructor: "Carlos Martinez",
-      transcript: "Weather affects our daily lives! Sunny, rainy, cloudy, windy, hot, cold, spring, summer, fall, winter..."
+      transcript: "Weather affects our daily lives! Sunny, rainy, cloudy, windy, hot, cold, spring, summer, fall, winter...",
+      altText: "Weather and seasons signs with corresponding visual weather representations"
     }
   ];
 
@@ -115,7 +121,7 @@ const SignLanguage = () => {
               <div className="relative">
                 <img
                   src={video.thumbnail}
-                  alt={`Sign language video: ${video.title}`}
+                  alt={video.altText || `Sign language video: ${video.title}`}
                   className="w-full h-48 object-cover"
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
