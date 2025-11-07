@@ -1,36 +1,85 @@
-import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useAccessibility } from '../context/AccessibilityContext';
+import { Moon, Sun, Type, Volume2, VolumeX, Eye, EyeOff } from 'lucide-react';
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { settings, updateSettings } = useAccessibility();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
+  const toggleTheme = () => {
+    updateSettings({ theme: settings.theme === 'light' ? 'dark' : 'light' });
+  };
+
+  const toggleSpeech = () => {
+    updateSettings({ speechEnabled: !settings.speechEnabled });
+  };
+
+  const increaseFontSize = () => {
+    updateSettings({ fontSize: Math.min(settings.fontSize + 1, 5) });
+  };
+
+  const decreaseFontSize = () => {
+    updateSettings({ fontSize: Math.max(settings.fontSize - 1, 1) });
+  };
+
+  const toggleHighContrast = () => {
+    updateSettings({ highContrast: !settings.highContrast });
   };
 
   return (
-    <nav className="bg-primary text-white p-4 sticky top-0 z-10" role="navigation" aria-label="Main navigation">
-      <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="text-xl font-bold" aria-label="Home">Accessible Learning Platform</Link>
-        <div className="flex space-x-4">
-          {user ? (
-            <>
-              <Link to="/" className="hover:underline" aria-label="Dashboard">Dashboard</Link>
-              <Link to="/courses" className="hover:underline" aria-label="Courses">Courses</Link>
-              <Link to="/sign-language" className="hover:underline" aria-label="Sign Language">Sign Language</Link>
-              {user.role === 'teacher' && <Link to="/upload" className="hover:underline" aria-label="Upload">Upload</Link>}
-              {user.role === 'admin' && <Link to="/admin" className="hover:underline" aria-label="Admin">Admin</Link>}
-              <button onClick={handleLogout} className="hover:underline" aria-label="Logout">Logout</button>
-            </>
-          ) : (
-            <>
-              <Link to="/login" className="hover:underline" aria-label="Login">Login</Link>
-              <Link to="/register" className="hover:underline" aria-label="Register">Register</Link>
-            </>
-          )}
+    <nav className="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+      <div className="flex items-center space-x-4">
+        <h1 className="text-xl font-semibold text-gray-800">Welcome, {user?.name}</h1>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        {/* Font Size Controls */}
+        <div className="flex items-center space-x-1">
+          <button
+            onClick={decreaseFontSize}
+            className="p-2 rounded hover:bg-gray-100"
+            aria-label="Decrease font size"
+          >
+            <Type size={16} />
+            <span className="ml-1 text-xs">-</span>
+          </button>
+          <span className="text-sm px-2">{settings.fontSize}</span>
+          <button
+            onClick={increaseFontSize}
+            className="p-2 rounded hover:bg-gray-100"
+            aria-label="Increase font size"
+          >
+            <Type size={16} />
+            <span className="ml-1 text-xs">+</span>
+          </button>
         </div>
+
+        {/* Speech Toggle */}
+        <button
+          onClick={toggleSpeech}
+          className={`p-2 rounded hover:bg-gray-100 ${settings.speechEnabled ? 'text-green-600' : 'text-gray-600'}`}
+          aria-label={settings.speechEnabled ? 'Disable speech' : 'Enable speech'}
+        >
+          {settings.speechEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
+        </button>
+
+        {/* High Contrast Toggle */}
+        <button
+          onClick={toggleHighContrast}
+          className={`p-2 rounded hover:bg-gray-100 ${settings.highContrast ? 'text-blue-600' : 'text-gray-600'}`}
+          aria-label={settings.highContrast ? 'Disable high contrast' : 'Enable high contrast'}
+        >
+          {settings.highContrast ? <EyeOff size={20} /> : <Eye size={20} />}
+        </button>
+
+        {/* Theme Toggle */}
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded hover:bg-gray-100"
+          aria-label={settings.theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
+        >
+          {settings.theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+        </button>
       </div>
     </nav>
   );

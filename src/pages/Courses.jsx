@@ -1,231 +1,184 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { useAccessibility } from '../context/AccessibilityContext';
-import AccessibilityToolbar from '../components/AccessibilityToolbar';
-import TTSButton from '../components/TTSButton';
+import api from '../utils/api';
+import CourseCard from '../components/CourseCard';
+import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import { Select } from '../components/ui/Select';
+import { Label } from '../components/ui/Label';
+import { Search, Filter } from 'lucide-react';
+import { motion } from 'framer-motion';
+import toast, { Toaster } from 'react-hot-toast';
 
 const Courses = () => {
-  const [courses, setCourses] = useState([]);
-  const [selectedCourse, setSelectedCourse] = useState(null);
-  const [filters, setFilters] = useState({
-    hasCaptions: false,
-    hasTranscript: false,
-    hasSignLanguage: false,
-    difficulty: '',
-    search: ''
-  });
   const { user } = useAuth();
-  const { preferences, getAccessibilityClasses } = useAccessibility();
+  const [courses, setCourses] = useState([]);
+  const [filteredCourses, setFilteredCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedLevel, setSelectedLevel] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   useEffect(() => {
     fetchCourses();
   }, []);
 
+  useEffect(() => {
+    filterCourses();
+  }, [courses, searchTerm, selectedLevel, selectedCategory]);
+
   const fetchCourses = async () => {
     try {
-      const res = await axios.get('http://localhost:3001/api/courses');
-      setCourses(res.data);
+      const response = await api.get('/courses');
+      setCourses(response.data);
     } catch (err) {
-      console.error(err);
+      toast.error('Failed to load courses');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const filterCourses = () => {
+    let filtered = courses;
+
+    if (searchTerm) {
+      filtered = filtered.filter(course =>
+        course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        course.description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (selectedLevel !== 'all') {
+      filtered = filtered.filter(course => course.level === selectedLevel);
+    }
+
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(course => course.category === selectedCategory);
+    }
+
+    setFilteredCourses(filtered);
   };
 
   const handleEnroll = async (courseId) => {
     try {
-      await axios.post(`http://localhost:3001/api/courses/${courseId}/enroll`);
-      alert('Enrolled successfully!');
+      await api.post(`/courses/${courseId}/enroll`);
+      toast.success('Successfully enrolled in course!');
+      fetchCourses(); // Refresh to update enrollment status
     } catch (err) {
-      alert('Enrollment failed');
+      toast.error('Failed to enroll in course');
     }
   };
 
-  const speakText = (text) => {
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      window.speechSynthesis.speak(utterance);
-    }
+  const isEnrolled = (courseId) => {
+    return courses.find(course => course._id === courseId)?.enrolledStudents?.includes(user.id);
   };
 
-  // Filter courses based on accessibility preferences and filters
-  const filteredCourses = courses.filter(course => {
-    if (filters.search && !course.title.toLowerCase().includes(filters.search.toLowerCase()) &&
-        !course.description.toLowerCase().includes(filters.search.toLowerCase())) {
-      return false;
-    }
-    if (filters.hasCaptions && !course.accessibilityFeatures?.hasCaptions) return false;
-    if (filters.hasTranscript && !course.accessibilityFeatures?.hasTranscript) return false;
-    if (filters.hasSignLanguage && !course.accessibilityFeatures?.hasSignLanguage) return false;
-    if (filters.difficulty && course.difficulty !== filters.difficulty) return false;
-    return true;
-  });
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-96">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className={getAccessibilityClasses()}>
-      <AccessibilityToolbar />
+    <div className="space-y-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Courses</h1>
+        <p className="text-gray-600">Discover and enroll in courses to enhance your learning</p>
+      </motion.div>
 
       {/* Search and Filters */}
-      <div className="mb-8 bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-        <h2 className="text-xl font-semibold mb-4">Find Courses</h2>
-
-        {/* Search Bar */}
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Search courses..."
-            value={filters.search}
-            onChange={(e) => setFilters({...filters, search: e.target.value})}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            aria-label="Search courses"
-          />
-        </div>
-
-        {/* Accessibility Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={filters.hasCaptions}
-              onChange={(e) => setFilters({...filters, hasCaptions: e.target.checked})}
-              className="rounded"
-            />
-            <span className="text-sm">📝 Has Captions</span>
-          </label>
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={filters.hasTranscript}
-              onChange={(e) => setFilters({...filters, hasTranscript: e.target.checked})}
-              className="rounded"
-            />
-            <span className="text-sm">📄 Has Transcript</span>
-          </label>
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={filters.hasSignLanguage}
-              onChange={(e) => setFilters({...filters, hasSignLanguage: e.target.checked})}
-              className="rounded"
-            />
-            <span className="text-sm">🤟 Has Sign Language</span>
-          </label>
-          <select
-            value={filters.difficulty}
-            onChange={(e) => setFilters({...filters, difficulty: e.target.value})}
-            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-          >
-            <option value="">All Levels</option>
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-          </select>
-        </div>
-      </div>
-
-      <h1 className="text-3xl font-bold mb-8" id="courses-heading">
-        Courses
-        <TTSButton text={`Courses page. ${filteredCourses.length} courses found.`} className="ml-4" />
-      </h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" aria-labelledby="courses-heading">
-        {filteredCourses.map((course) => (
-          <div key={course._id} className="card p-4">
-            {course.thumbnail && (
-              <img
-                src={course.thumbnail}
-                alt={course.altText || course.title}
-                className="w-full h-48 object-cover rounded mb-4"
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        className="bg-white p-6 rounded-lg shadow-sm border"
+      >
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1">
+            <Label htmlFor="search">Search Courses</Label>
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                id="search"
+                placeholder="Search by title or description..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
               />
-            )}
-
-            {/* Accessibility Features Badges */}
-            <div className="flex flex-wrap gap-1 mb-3">
-              {course.accessibilityFeatures?.hasCaptions && (
-                <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">📝 Captions</span>
-              )}
-              {course.accessibilityFeatures?.hasTranscript && (
-                <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">📄 Transcript</span>
-              )}
-              {course.accessibilityFeatures?.hasSignLanguage && (
-                <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">🤟 ASL</span>
-              )}
-              {course.accessibilityFeatures?.hasAudioDescription && (
-                <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">🔊 Audio Desc</span>
-              )}
-            </div>
-
-            <h3 className="text-xl font-semibold mb-2">
-              {course.title}
-              <TTSButton text={course.title} className="ml-2" />
-            </h3>
-            <p className="text-gray-600 mb-2">
-              {course.description}
-              <TTSButton text={course.description} className="ml-2" />
-            </p>
-            <p className="text-sm text-gray-500 mb-2">Teacher: {course.teacher.name}</p>
-            <p className="text-sm text-gray-500 mb-4">
-              Level: {course.difficulty} • Duration: {course.duration ? `${course.duration} min` : 'N/A'}
-            </p>
-            <div className="flex space-x-2">
-              <button
-                onClick={() => setSelectedCourse(course)}
-                className="btn flex-1"
-                aria-label={`View course ${course.title}`}
-              >
-                View
-              </button>
-              {user && !course.enrolledStudents.includes(user.id) && (
-                <button
-                  onClick={() => handleEnroll(course._id)}
-                  className="btn flex-1 bg-accent"
-                  aria-label={`Enroll in ${course.title}`}
-                >
-                  Enroll
-                </button>
-              )}
             </div>
           </div>
-        ))}
-      </div>
-
-      {selectedCourse && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="course-modal-title">
-          <div className="bg-white p-6 rounded-lg max-w-4xl w-full max-h-full overflow-y-auto">
-            <h2 id="course-modal-title" className="text-2xl font-bold mb-4">{selectedCourse.title}</h2>
-            <div className="mb-4">
-              <video controls className="w-full" aria-label={`Video for ${selectedCourse.title}`}>
-                <source src={selectedCourse.videoUrl} type="video/mp4" />
-                {selectedCourse.captionUrl && <track kind="captions" src={selectedCourse.captionUrl} srclang="en" label="English" />}
-                Your browser does not support the video tag.
-              </video>
-            </div>
-            {selectedCourse.signLanguageUrl && (
-              <div className="mb-4">
-                <button className="btn" aria-label="Toggle sign language overlay">Toggle Sign Language</button>
-                {/* Placeholder for overlay logic */}
-              </div>
-            )}
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold mb-2">Transcript</h3>
-              <p className="text-gray-700">{selectedCourse.transcript}</p>
-              <button
-                onClick={() => speakText(selectedCourse.transcript)}
-                className="btn mt-2"
-                aria-label="Read aloud transcript"
-              >
-                Read Aloud
-              </button>
-            </div>
-            <button
-              onClick={() => setSelectedCourse(null)}
-              className="btn bg-gray-500"
-              aria-label="Close course modal"
+          <div className="w-full md:w-48">
+            <Label htmlFor="level">Level</Label>
+            <Select
+              id="level"
+              value={selectedLevel}
+              onChange={(e) => setSelectedLevel(e.target.value)}
             >
-              Close
-            </button>
+              <option value="all">All Levels</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </Select>
+          </div>
+          <div className="w-full md:w-48">
+            <Label htmlFor="category">Category</Label>
+            <Select
+              id="category"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              <option value="all">All Categories</option>
+              <option value="language">Language</option>
+              <option value="math">Mathematics</option>
+              <option value="science">Science</option>
+              <option value="history">History</option>
+              <option value="art">Art</option>
+            </Select>
           </div>
         </div>
-      )}
+      </motion.div>
+
+      {/* Course Grid */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        {filteredCourses.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-gray-400 mb-4">
+              <Filter className="h-16 w-16 mx-auto" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No courses found</h3>
+            <p className="text-gray-600">Try adjusting your search or filter criteria</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredCourses.map((course, index) => (
+              <motion.div
+                key={course._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 * index }}
+              >
+                <CourseCard
+                  course={course}
+                  onEnroll={handleEnroll}
+                  isEnrolled={isEnrolled(course._id)}
+                />
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </motion.div>
+
+      <Toaster position="top-right" />
     </div>
   );
 };
