@@ -16,6 +16,60 @@ function App() {
 
   console.log('App component rendering, user:', user, 'loading:', loading);
 
+  // Temporary debug UI to verify rendering
+  return (
+    <div style={{
+      padding: '50px',
+      color: 'white',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      minHeight: '100vh',
+      fontFamily: 'Arial, sans-serif'
+    }}>
+      <h1 style={{ fontSize: '2rem', marginBottom: '20px' }}>🚀 Accessible Learning Platform Loaded Successfully!</h1>
+      <p style={{ fontSize: '1.2rem', marginBottom: '20px' }}>
+        If you can see this, React is rendering correctly.
+      </p>
+      <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '10px' }}>
+        <p><strong>Debug Info:</strong></p>
+        <p>User: {user ? JSON.stringify(user) : 'Not logged in'}</p>
+        <p>Loading: {loading ? 'Yes' : 'No'}</p>
+        <p>API URL: {import.meta.env.VITE_API_URL || 'Not set'}</p>
+        <p>Current Path: {window.location.pathname}</p>
+      </div>
+      <div style={{ marginTop: '30px' }}>
+        <button
+          onClick={() => window.location.href = '/login'}
+          style={{
+            padding: '10px 20px',
+            background: '#4CAF50',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            marginRight: '10px'
+          }}
+        >
+          Go to Login
+        </button>
+        <button
+          onClick={() => window.location.href = '/dashboard'}
+          style={{
+            padding: '10px 20px',
+            background: '#2196F3',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer'
+          }}
+        >
+          Go to Dashboard
+        </button>
+      </div>
+    </div>
+  );
+
+  // Original code (commented out temporarily)
+  /*
   if (loading) {
     console.log('Showing loading screen');
     return <div style={{ padding: '40px', color: 'white', background: 'black' }}>Loading Accessible Learning Platform...</div>;
@@ -42,6 +96,7 @@ function App() {
       </div>
     </AccessibilityProvider>
   );
+  */
 }
 
 export default App;
