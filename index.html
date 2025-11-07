@@ -8,6 +8,29 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Debug: Check if JavaScript is loading
+      console.log('HTML loaded, checking root element...');
+      const root = document.getElementById('root');
+      console.log('Root element found:', !!root);
+
+      // Add visible debug text
+      if (root) {
+        root.innerHTML = '<div style="color: red; font-size: 24px; padding: 50px;">🔴 HTML LOADED - WAITING FOR JS</div>';
+      }
+
+      // Check if script loads
+      window.addEventListener('load', () => {
+        console.log('Window loaded');
+      });
+
+      window.addEventListener('error', (e) => {
+        console.error('Script error:', e);
+        if (root) {
+          root.innerHTML = '<div style="color: red; font-size: 24px; padding: 50px;">❌ SCRIPT ERROR: ' + e.message + '</div>';
+        }
+      });
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
